@@ -1,0 +1,3 @@
+accountNumber,mutationcode,transactiondate,valuedate,startsaldo,endsaldo,amount,description
+111222333,EUR,20260125,20260125,"904,50","3.404,50","2.500,00","SEPA Overboeking Naam: Werkgever B.V. Salaris januari"
+111222333,EUR,20260202,20260202,"3.380,00","3.280,00","-100,00","Albert Heijn boodschappen"

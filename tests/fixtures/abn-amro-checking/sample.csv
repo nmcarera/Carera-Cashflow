@@ -1,0 +1,9 @@
+accountNumber,mutationcode,transactiondate,valuedate,startsaldo,endsaldo,amount,description
+111222333,EUR,20260103,20260103,"1.000,00","954,50","-45,50","Albert Heijn boodschappen, Café Central AMSTERDAM"
+111222333,EUR,20260105,20260105,"954,50","904,50","-50,00","SEPA Overboeking IBAN: NL12ABNA0123456789 Naam: J. de Wit"
+111222333,EUR,20260125,20260125,"904,50","3.404,50","2.500,00","SEPA Overboeking Naam: Werkgever B.V. Salaris januari"
+111222333,EUR,20260128,20260128,"3.404,50","3.404,50","1.200,5O","SEPA Overboeking Naam: Onbekend"
+111222333,EUR,2026-01-30,20260130,"3.404,50","3.380,00","-24,50","Jumbo boodschappen"
+999888777,EUR,20260103,20260103,"5.000,00","5.000,00","3,47","ACCOUNT BALANCED  CREDIT INTEREST  3,47C from 30.09.2025 to 31.12.2025  Direct Savings"
+999888777,EUR,20260110,20260110,"5.003,47","4.503,47","-500,00","SEPA Overboeking IBAN: NL77ABNA0111222333 Naam: Personal account"
+111222333,EUR,20260112,20260112,"3.380,00","2.880,00","-500,00","SEPA Overboeking IBAN: NL07ABNA0999888777 Naam: Direct Savings"

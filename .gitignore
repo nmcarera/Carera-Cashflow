@@ -39,3 +39,18 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local household financial data — never committed
+/data/
+*.db
+*.db-shm
+*.db-wal
+
+# real bank statement samples used only for local adapter testing — never committed
+/tmp-samples/
+
+# Playwright E2E: its disposable test database and run artifacts
+/e2e/.e2e-data/
+/test-results/
+/playwright-report/
+/blob-report/
