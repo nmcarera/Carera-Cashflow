@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+:root {
+  /* Light letters on a dark background — a warm near-black rather than a
+     stark blue-black, to keep the "calm, not clinical" tone from the light
+     palette this replaced. */
+  color-scheme: dark;
+  --background: #1a1816;
+  --surface: #242220;
+  --foreground: #ede9e3;
+  --muted: #a8a29a;
+  /* Was #78726a — bumped for WCAG AA contrast (>=4.5:1 for normal text)
+     against --surface, the harder of the two backgrounds this color is
+     used on. See the a11y pass in the Phase 5/6 checkpoint for the numbers. */
+  --muted-2: #90897f;
+  /* Was #3a362f (1.47:1 against --background) — bumped to clear the
+     WCAG 1.4.11 non-text-contrast threshold (3:1) so card and form-control
+     boundaries are perceivable, not just implied by the surface/background
+     color step. */
+  --border: #6e6759;
+  --income: #5fb98d;
+  --expense: #dba55f;
+  --savings: #6ea8e0;
+  --focus-ring: #6ea8e0;
+  --danger-quiet: #d99872;
+  /* System stacks only (no next/font/google) — see the comment in
+     layout.tsx on why: this app is local-first and must render identically
+     with no network access, including on first run. Headers use the serif
+     stack for contrast against the sans body text; everything else is
+     sans-serif. */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-border: var(--border);
+  --color-income: var(--income);
+  --color-expense: var(--expense);
+  --color-savings: var(--savings);
+  --color-danger-quiet: var(--danger-quiet);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Utility for visually-hidden but screen-reader-accessible text. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
