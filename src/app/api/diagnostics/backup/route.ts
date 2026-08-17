@@ -2,11 +2,12 @@
  * Downloads a point-in-time snapshot of the live SQLite database.
  *
  * Uses better-sqlite3's native `.backup()` (not a plain file copy) because
- * the app runs with `journal_mode = WAL` (src/lib/db/client.ts) — a raw
- * `cp` of the main .db file while the app is running can miss committed
- * data still sitting in the -wal file. `.backup()` produces a single
- * consistent file safely, without stopping the server or touching the live
- * connection other pages are using concurrently.
+ * a raw `cp` of the .db file while the app is running isn't guaranteed to
+ * be transactionally consistent — a write could land mid-copy. `.backup()`
+ * produces a single consistent snapshot safely, without stopping the
+ * server or touching the live connection other pages are using
+ * concurrently. (Earlier versions of this app ran in WAL mode, where this
+ * mattered even more — see src/lib/db/client.ts for why that changed.)
  */
 import fs from "node:fs";
 import os from "node:os";

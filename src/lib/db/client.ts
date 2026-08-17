@@ -31,7 +31,17 @@ declare global {
 function createConnection(): Database.Database {
   const dbPath = resolveDbPath();
   const sqlite = new Database(dbPath);
-  sqlite.pragma("journal_mode = WAL");
+  // NOT WAL. WAL mode's -wal/-shm sidecar files rely on mmap-based shared
+  // memory, which many hosted "volume" filesystems (network- or
+  // virtualization-backed, as opposed to a plain local disk) don't support
+  // correctly — the practical symptom isn't a SQLite error, it's the whole
+  // Node process dying silently the instant this pragma runs (a native
+  // crash below what JS try/catch can intercept). This app is one Node
+  // process with no concurrent external writers, so WAL's main benefit
+  // (readers not blocking on a writer) doesn't buy us anything here — the
+  // portability is worth far more than the write-concurrency we'd gain.
+  // See README "Deploying" for the story of how this was diagnosed.
+  sqlite.pragma("journal_mode = DELETE");
   sqlite.pragma("foreign_keys = ON");
   return sqlite;
 }
