@@ -29,6 +29,20 @@ declare global {
 }
 
 function createConnection(): Database.Database {
+  // `next build` briefly imports every route/page module (in parallel,
+  // across several worker processes) just to inspect their exported
+  // config — it never calls into them. But this module opens a real
+  // database connection as a side effect of being imported (see the
+  // `sqlite` export below), so without this guard, a production build
+  // would have several worker processes racing to create the same
+  // brand-new WAL-mode database file at once, before any real storage
+  // volume is even mounted. An in-memory database sidesteps that
+  // entirely — nothing during the build phase actually queries it.
+  if (process.env.NEXT_PHASE === "phase-production-build") {
+    const sqlite = new Database(":memory:");
+    sqlite.pragma("foreign_keys = ON");
+    return sqlite;
+  }
   const dbPath = resolveDbPath();
   const sqlite = new Database(dbPath);
   sqlite.pragma("journal_mode = WAL");

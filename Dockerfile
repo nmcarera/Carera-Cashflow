@@ -23,6 +23,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN npm ci
+# Belt-and-suspenders: force better-sqlite3's native addon to compile from
+# source against this exact image's Node/glibc/CPU, rather than trust a
+# downloaded prebuilt binary that might not match Railway's build machine.
+RUN npm rebuild better-sqlite3 --build-from-source
 
 FROM node:20-bookworm-slim AS builder
 WORKDIR /app
