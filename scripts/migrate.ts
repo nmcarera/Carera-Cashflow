@@ -31,6 +31,41 @@ process.on("unhandledRejection", (err) => {
 async function main() {
   console.log("db:migrate — starting, CARERA_DB_PATH =", process.env.CARERA_DB_PATH || "(unset)");
 
+  // TEMPORARY diagnostic probe (see README "Deploying" for why): the real
+  // connection below has crashed silently on Railway with no JS-catchable
+  // error, regardless of journal mode, so before touching the real
+  // database we test two narrower cases first. Whichever one is the LAST
+  // line printed tells us exactly where the boundary is:
+  //   - crash before "probe A" printed  -> loading better-sqlite3's native
+  //     addon is unsafe in this container, period, unrelated to any file
+  //   - crash after A but before B      -> in-memory is fine, opening ANY
+  //     real file on disk is what's unsafe
+  //   - crash after B but before C      -> ordinary container disk is
+  //     fine, the mounted persistent Volume specifically is the problem
+  //   - crash after C (or no crash)     -> something else entirely
+  const BetterSqlite3 = (await import("better-sqlite3")).default;
+
+  console.log("db:migrate — probe A: in-memory database");
+  const probeA = new BetterSqlite3(":memory:");
+  probeA.prepare("select 1").get();
+  probeA.close();
+  console.log("db:migrate — probe A: ok");
+
+  console.log("db:migrate — probe B: real file on container's own disk (/tmp)");
+  const probeB = new BetterSqlite3("/tmp/carera-probe.db");
+  probeB.pragma("journal_mode = DELETE");
+  probeB.prepare("select 1").get();
+  probeB.close();
+  console.log("db:migrate — probe B: ok");
+
+  console.log("db:migrate — probe C: real file on the mounted Volume (", process.env.CARERA_DB_PATH, ")");
+  const probeC = new BetterSqlite3(process.env.CARERA_DB_PATH || "/data/carera-cashflow.db");
+  probeC.pragma("journal_mode = DELETE");
+  probeC.prepare("select 1").get();
+  probeC.close();
+  console.log("db:migrate — probe C: ok");
+  // END diagnostic probe.
+
   const { migrate } = await import("drizzle-orm/better-sqlite3/migrator");
   const { db, sqlite } = await import("../src/lib/db/client");
 
