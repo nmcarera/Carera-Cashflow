@@ -23,10 +23,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN npm ci
-# Belt-and-suspenders: force better-sqlite3's native addon to compile from
-# source against this exact image's Node/glibc/CPU, rather than trust a
-# downloaded prebuilt binary that might not match Railway's build machine.
-RUN npm rebuild better-sqlite3 --build-from-source
+# NOT `npm rebuild better-sqlite3 --build-from-source`. An earlier version
+# of this Dockerfile forced that, guessing it would be "safer" than the
+# maintainer's prebuilt binary — but it was never actually the fix for
+# anything (the problem it was aimed at turned out to be unrelated), and it
+# was in place, untested, when this app's database engine started crashing
+# the container outright on every start with zero error output on Railway
+# (see README "Deploying"). The maintainer's prebuilt binary is built with
+# a deliberately portable toolchain/target for exactly this kind of hosting
+# environment; our own from-source compile inside this specific image had
+# no such guarantee. Removing it is the fix, not a stopgap.
 
 FROM node:20-bookworm-slim AS builder
 WORKDIR /app
@@ -37,6 +43,15 @@ RUN npm run build
 FROM node:20-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+# better-sqlite3's native addon is a compiled C++ binary and may dynamically
+# link against libstdc++ at runtime. The `deps`/`builder` stages above get
+# it "for free" as a side effect of installing g++ to build native addons,
+# but this stage never runs apt-get at all — a Debian slim base image
+# doesn't necessarily carry libstdc++ by default the way a full image
+# would, so without this, the addon could be present but unable to load.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libstdc++6 \
+    && rm -rf /var/lib/apt/lists/*
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
